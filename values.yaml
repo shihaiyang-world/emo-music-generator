@@ -1,0 +1,32 @@
+server:
+  group: ai-algo  # required git group
+  project: ai-water-base  # required git project
+  version: baseline  # required eid 或者其他，如果项目上只有一个可以写baseline或者其他代表主分支的标识
+  mntModelPath: ai-water-base/baseline/models  # required 每个分组挂了一个磁盘，里面以{project}/{version}/models 下放需要的模型，会挂载到pod的 /home/model-server/models/ 目录下
+
+resources:
+  limits:
+#    aliyun.com/gpu-mem: 1  # required 占用的GPU显存 单位GiB 根据模型大小修改
+    cpu: 16  # required CPU使用，可以设置大一点  比如16
+
+# required  pod 亲和性，调度到开启gpushare插件的节点
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - "vm-50-16-tencentos"
+#            - key: gpushare
+#              operator: In
+#              values:
+#                - "true"
+
+env:
+  - name: CUDA_VISIBLE_DEVICES
+    value: "1,2,3,4"
+
+livenessProbe:
+  initialDelaySeconds: 900
