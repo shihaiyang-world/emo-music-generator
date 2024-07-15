@@ -32,7 +32,8 @@ def write_midi(words, path_outfile, word2event):
         vals = []
         for kidx, key in enumerate(class_keys):
             vals.append(word2event[key][words[i][kidx]])
-        # print(vals)
+        print(vals)
+        print("index:"+str(i))
 
         if vals[3] == 'Metrical':
             if vals[2] == 'Bar':

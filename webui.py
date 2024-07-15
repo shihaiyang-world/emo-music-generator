@@ -6,6 +6,7 @@ import torch
 import librosa
 import pandas as pd
 import tempfile
+from datetime import datetime
 
 i18n = I18nAuto(language="zh_CN")
 if torch.cuda.is_available():
@@ -71,9 +72,21 @@ def eeg_inference(inputs):
 
 
 def emo_music_inference():
-    audio, sr = librosa.load(path="gen_Q1_3.mp3")
+    # inner_function = current_time()
+    # inner_function()
 
+    audio, sr = librosa.load(path="gen_Q1_3.mp3")
     return sr,audio
+
+
+# 定义一个函数，返回当前的日期和时间。
+def current_time():
+    def inner():
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        return f"欢迎使用,当前时间是: {current_time}"
+
+    return inner
 
 
 with gr.Blocks(title="GPT-SoVITS WebUI") as app:
@@ -86,31 +99,27 @@ with gr.Blocks(title="GPT-SoVITS WebUI") as app:
         gr.Markdown(value=i18n("脑电信号情感识别"))
         with gr.Row():
             inputs = gr.components.File(label="上传脑电文件",file_types=['.csv', '.mat'],height=100)
-            with gr.Column():
-                GPT_dropdown = gr.Dropdown(label=i18n("EEG情感模型列表"), choices=sorted(GPT_names, key=custom_sort_key), value=gpt_path, interactive=True)
 
-            recong_btn = gr.Button(i18n("脑电情感识别"), variant="primary")
+            GPT_dropdown = gr.Dropdown(label=i18n("EEG情感模型列表"), choices=sorted(GPT_names, key=custom_sort_key), value=gpt_path, interactive=True)
+            SoVITS_dropdown = gr.Dropdown(label=i18n("音乐生成模型列表"),
+                                          choices=sorted(SoVITS_names, key=custom_sort_key), value=sovits_path,
+                                              interactive=True)
 
-            with gr.Column():
-                # output excel file with gradio.io
-                tab2_outputs = gr.File(label="情感识别结果")
-                recong_btn.click(fn=eeg_inference, inputs=[inputs], outputs=tab2_outputs)
-
-    with gr.Group():
-        gr.Markdown(value=i18n("情感音乐生成"))
-        with gr.Row():
-            SoVITS_dropdown = gr.Dropdown(label=i18n("音乐生成模型列表"), choices=sorted(SoVITS_names, key=custom_sort_key), value=sovits_path, interactive=True)
-            with gr.Column():
-                gr.Markdown(value=i18n("生成音符温度采样参数："))
-                top_k = gr.Slider(minimum=1, maximum=100, step=1, label=i18n("top_k"), value=5, interactive=True)
-                top_p = gr.Slider(minimum=0, maximum=1, step=0.05, label=i18n("top_p"), value=1, interactive=True)
-                temperature = gr.Slider(minimum=0, maximum=1, step=0.05, label=i18n("temperature"), value=1,
-                                        interactive=True)
             music_infer_btn = gr.Button(i18n("生成情感音乐"), variant="primary")
 
-            output = gr.Audio(label=i18n("生成的音乐"))
+    with gr.Group():
+        gr.Markdown(value=i18n("情感识别与音乐生成"))
 
-            music_infer_btn.click(fn=emo_music_inference, inputs=[], outputs=[output])
+        out_1 = gr.Textbox(label="实时状态",
+                           value=current_time(),
+                           every=1,
+                           info="当前时间", )
+
+
+
+        output = gr.Audio(label=i18n("生成的音乐"))
+
+        music_infer_btn.click(fn=emo_music_inference, inputs=[], outputs=[output])
             # SoVITS_dropdown.change(change_sovits_weights, [SoVITS_dropdown], [])
             # GPT_dropdown.change(change_gpt_weights, [GPT_dropdown], [])
 
