@@ -1,7 +1,3 @@
-build-prod:
-	$(eval tag := $(shell cat version))
-	docker build -t docker.shuiditech.com/devops/vllm-openai:$(tag) .
-	docker push docker.shuiditech.com/devops/vllm-openai:$(tag)
 
 release:
 	$(eval tag := $(shell cat version))
