@@ -1,6 +1,8 @@
 # emo-music-generator
 
 
+`在baseline中执行训练、推理`
+
 sudo mount -t nfs -o vers=3,nolock,proto=tcp,noresvport 10.8.50.49:/g97mfuca/devops /devops-data
 
 docker run -it --gpus all -d --name remote-gpu -p 2024:22 -v /devops-data:/workspace docker.shuiditech.com/devops/modelscope:ubuntu20.04-cuda11.8.0-py38-torch2.0.1-tf2.13.0-1.9.5-ssh-fluidsynth
